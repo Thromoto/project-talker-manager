@@ -14,7 +14,7 @@ const readFile = async () => {
   } catch (error) {
     console.error(`Arquivo não pode ser lido: ${error}`);
   }
-}
+};
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
