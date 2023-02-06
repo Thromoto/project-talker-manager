@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const validationLogin = require('./validationLogin');
 
 const app = express();
 app.use(express.json());
@@ -60,7 +61,7 @@ function makeToken(length) {
 
 // const loginTalker = [];
 
-app.post('/login', async (req, res) => {
+app.post('/login', validationLogin, async (req, res) => {
   const { email, password } = req.body;
   const token = makeToken(16);
   const login = {
