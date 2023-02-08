@@ -2,13 +2,13 @@ const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 const generateToken = require('./utils/generateToken');
-const validateAge = require('./utils/middlewares/validateAge');
-const validateAuth = require('./utils/middlewares/validateAuth');
-const validateName = require('./utils/middlewares/validateName');
-const validateRate = require('./utils/middlewares/validateRate');
-const validateTalk = require('./utils/middlewares/validateTalk');
-const validateWatchedAt = require('./utils/middlewares/validateWatchedAt');
-const validationLogin = require('./validationLogin');
+const validateAge = require('./middlewares/validateAge');
+const validateAuth = require('./middlewares/validateAuth');
+const validateName = require('./middlewares/validateName');
+const validateRate = require('./middlewares/validateRate');
+const validateTalk = require('./middlewares/validateTalk');
+const validateWatchedAt = require('./middlewares/validateWatchedAt');
+const validationLogin = require('./middlewares/validationLogin');
 
 const app = express();
 app.use(express.json());
@@ -81,6 +81,23 @@ app.post('/talker',
         const allTalker = JSON.stringify([...talker, newTalker]);
         await fs.writeFile(talkerPath, allTalker);
         res.status(201).json(newTalker);
+});
+
+app.put('/talker/:id', validateAuth, 
+validateName, 
+validateAge,
+validateTalk,
+validateWatchedAt,
+validateRate,
+async (req, res) => {
+  const { id } = req.params;
+  const { name, age, talk: { watchedAt, rate } } = req.body;
+  const talker = await readFile();
+  const index = talker.findIndex((element) => element.id === Number(id));
+  talker[index] = { id: Number(id), name, age, talk: { watchedAt, rate } };
+  const updateTalker = JSON.stringify(talker);
+  await fs.writeFile(talkerPath, updateTalker);
+  res.status(200).json(talker[index]);
 });
 
 app.delete('/talker/:id', validateAuth, async (req, res) => {
