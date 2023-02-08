@@ -83,11 +83,11 @@ app.post('/talker',
         res.status(201).json(newTalker);
 });
 
-app.delete('/talker/:id', validateAuth,async (req, res) => {
+app.delete('/talker/:id', validateAuth, async (req, res) => {
   const { id } = req.params;
   const talker = await readFile();
   const filteredTalker = talker.filter((talk) => talk.id !== Number(id));
-  const updateTalker = JSON.stringify(filteredTalker)
+  const updateTalker = JSON.stringify(filteredTalker);
   await fs.writeFile(talkerPath, updateTalker);
   res.status(204).end();
 });
