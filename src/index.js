@@ -1,6 +1,13 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const generateToken = require('./utils/generateToken');
+const validateAge = require('./utils/middlewares/validateAge');
+const validateAuth = require('./utils/middlewares/validateAuth');
+const validateName = require('./utils/middlewares/validateName');
+const validateRate = require('./utils/middlewares/validateRate');
+const validateTalk = require('./utils/middlewares/validateTalk');
+const validateWatchedAt = require('./utils/middlewares/validateWatchedAt');
 const validationLogin = require('./validationLogin');
 
 const app = express();
@@ -47,28 +54,31 @@ app.get('/talker/:id', async (req, res) => {
       return res.status(200).json(talkerId);
 });
 
-function makeToken(length) {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
-
-// const loginTalker = [];
-
 app.post('/login', validationLogin, async (req, res) => {
-  const { email, password } = req.body;
-  const token = makeToken(16);
-  const login = {
-    email,
-    password,
-    token,
-  };
-  // loginTalker.push(login);
-  res.status(200).json(login);
+  const token = generateToken();
+  res.status(200).json({ token });
+});
+
+app.post('/talker', 
+  validateAuth, 
+  validateName, 
+  validateAge,
+  validateTalk,
+  validateWatchedAt,
+  validateRate,
+  async (req, res) => {
+    const { name, age, talk: { watchedAt, rate } } = req.body;
+        const talker = await readFile();
+        const newTalker = {
+        id: talker[talker.length - 1].id + 1,
+        name,
+        age,
+        talk: {
+          watchedAt,
+          rate,
+        },
+      };
+        const allTalker = JSON.stringify([...talker, newTalker]);
+        await fs.writeFile(talkerPath, allTalker);
+        res.status(201).json(newTalker);
 });
